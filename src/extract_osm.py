@@ -7,6 +7,7 @@ from osgeo import ogr,gdal
 from tqdm import tqdm
 from pygeos import from_wkb
 
+from multiprocessing import Pool,cpu_count
 
 gdal.SetConfigOption("OSM_CONFIG_FILE", os.path.join('..',"osmconf.ini"))
 
@@ -108,6 +109,15 @@ def osm_to_feather(file_name):
     df.to_feather(os.path.join(data_path,'feather',"{}.ft".format(province_name)))
     
     return df
+
+if __name__ == '__main__':       
+
+    pbf_files = os.path.join("C:\\Data",'OSM','PBF')
+    provinces = [x for x in os.listdir(pbf_files) if 'netherlands' not in x]
+
+    # # in parallel get exposure information
+    with Pool(processes=cpu_count()-2) as pool: 
+         pool.map(osm_to_feather,provinces,chunksize=1)        
     
     
     
